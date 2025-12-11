@@ -78,3 +78,4 @@ jobs:
           name: security-reports-bundle
           path: |
             juice-logs.log
+            ffuf-output.json
