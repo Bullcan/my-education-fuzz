@@ -57,7 +57,6 @@ jobs:
             -X POST \
             -H "Content-Type: application/json" \
             -d '{"email":"INJECTION","password":"password"}' \
-            -mc 200,300-304 \
             -o ffuf-output.json \
             -of json
 
