@@ -52,14 +52,12 @@ jobs:
           echo "Escaped payloads: $(wc -l < SQL-Injection-updated)"
           
           $HOME/go/bin/ffuf \
+            -w SQL-Injection-updated:INJECTION \
             -u "http://localhost:3000/rest/user/login" \
             -X POST \
             -H "Content-Type: application/json" \
-            -d '{"email":"FUZZ","password":"password"}' \
-            -w SQL-Injection-updated \
-            -t 10 \
-            -timeout 5 \
-            -mc 200,302 \
+            -d '{"email":"INJECTION","password":"password"}' \
+            -mc 200,300-304 \
             -o ffuf-output.json \
             -of json
 
