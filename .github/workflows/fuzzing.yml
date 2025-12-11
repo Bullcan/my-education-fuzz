@@ -37,17 +37,36 @@ jobs:
 
       - name: Run fuzzing
         run: |
+          python3 -c "
+          import json
+          import sys
+          
+          with open('SQL-Injection', 'r') as f:
+              for line in f:
+                  line = line.strip()
+                  if line:
+                      # Экранируем для JSON
+                      print(json.dumps(line)[1:-1])  # Убираем внешние кавычки
+          " > SQL-Injection-escaped
+          
+          echo "Original payloads: $(wc -l < SQL-Injection)"
+          echo "Escaped payloads: $(wc -l < SQL-Injection-escaped)"
+          
+          # Запускаем ffuf с обработанными payloads
           $HOME/go/bin/ffuf \
             -u "http://localhost:3000/rest/user/login" \
             -X POST \
             -H "Content-Type: application/json" \
             -d '{"email":"FUZZ","password":"password"}' \
-            -w SQL-Injection \
-            -t 15 \
-            -timeout 8 \
+            -w SQL-Injection-escaped \
+            -t 10 \
+            -timeout 5 \
             -mc 200,302 \
             -o ffuf-output.json \
             -of json
+          
+          # Проверяем результаты
+          echo "Results found: $(jq '.results | length' ffuf-output.json 2>/dev/null || echo 0)"
 
       - name: Get Logs from Service
         run: |
